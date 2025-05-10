@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Kundeanmeldelser</title>
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            background-color: rgba(255, 255, 255, 0.05);
+            display: inline-block;
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+        }
+
+        button {
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        li {
+            background-color: rgba(255, 255, 255, 0.05);
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+            .nav a {
+                background-color: #007bff;
+                color: white;
+                text-decoration: none;
+                padding: 10px;
+                border-radius: 10px;
+                font-weight: bold;
+            }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html">🏠 Hjem</a>
+        <a href="bestilling.html">📅 Bestil</a>
+        <a href="priser.html">💰 Priser</a>
+    </div>
+
+    <div class="container">
+        <h1>🗨️ Kundeanmeldelser</h1>
+
+        <form id="reviewForm">
+            <input type="text" id="name" placeholder="Dit navn" required>
+            <textarea id="review" rows="4" placeholder="Din anmeldelse" required></textarea>
+            <button type="submit">Send</button>
+        </form>
+
+        <div id="reviews">
+            <h2>Seneste anmeldelser</h2>
+            <ul id="reviewList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const endpoint = "https://script.google.com/macros/s/AKfycbyCwaNJuKN4pl5WEFztU33imbiGARwHMbz2kNIGCyo3bH2xybUPJMAhyH3UI1JHRLbgIw/exec";
+
+        document.getElementById('reviewForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = new FormData();
+            form.append("name", document.getElementById("name").value.trim());
+            form.append("review", document.getElementById("review").value.trim());
+
+            await fetch(endpoint, {
+                method: "POST",
+                body: form
+            });
+
+            document.getElementById("name").value = "";
+            document.getElementById("review").value = "";
+
+            loadReviews();
+        });
+
+        async function loadReviews() {
+            const res = await fetch(endpoint);
+            const data = await res.json();
+            const list = document.getElementById("reviewList");
+            list.innerHTML = "";
+
+            data.reverse().forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = `${item.name}: ${item.review}`;
+                list.appendChild(li);
+            });
+        }
+
+        loadReviews();
+    </script>
+</body>
+</html>
