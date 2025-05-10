@@ -12,6 +12,7 @@
       background-color: #0f0f0f;
       color: #fff;
       padding: 2rem;
+      margin: 0;
     }
     h1 {
       text-align: center;
@@ -57,19 +58,97 @@
     .review small {
       color: #aaa;
     }
+    .admin-login {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .admin-login input {
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: none;
+      margin-right: 1rem;
+      font-size: 1rem;
+    }
+    .admin-login button {
+      background-color: #ff6347;
+      color: #fff;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.7);
+      border-bottom: 2px solid #444;
+    }
+    .top-bar nav a {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .lang-switch {
+      background: #333;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
-  <h1>🗣️ Feedback</h1>
+  <img src="images/background.jpg" alt="Background" class="background" />
+
+  <!-- Top Navigation Bar -->
+  <div class="top-bar">
+    <nav>
+      <a href="index.html" data-i18n="home">🏠 Home</a>
+      <a href="bestilling.html" data-i18n="book">📅 Book</a>
+      <a href="feedback.html" data-i18n="feedback">💬 Feedback</a>
+      <a href="priser.html" data-i18n="prices">💰 Prices</a>
+    </nav>
+    <button class="lang-switch" onclick="toggleLang()">🇩🇰 / 🇬🇧</button>
+  </div>
+
+  <!-- Admin Login Form -->
+  <div class="admin-login" id="admin-login">
+    <input type="password" id="admin-password" placeholder="Admin Password" />
+    <button onclick="loginAsAdmin()">Login as Admin</button>
+  </div>
+
+  <h1 data-i18n="feedbackTitle">🗣️ Feedback</h1>
+
   <form id="feedback-form">
     <input type="text" id="name" placeholder="Dit navn" required />
     <textarea id="message" rows="4" placeholder="Din besked..." required></textarea>
-    <button type="submit">Send feedback</button>
+    <button type="submit" data-i18n="sendFeedback">Send feedback</button>
   </form>
 
   <div class="reviews" id="reviews"></div>
 
   <script>
+    const translations = {
+      en: {
+        home: "🏠 Home",
+        book: "📅 Book",
+        feedback: "💬 Feedback",
+        prices: "💰 Prices",
+        feedbackTitle: "🗣️ Feedback",
+        sendFeedback: "Send feedback"
+      },
+      da: {
+        home: "🏠 Hjem",
+        book: "📅 Bestil",
+        feedback: "💬 Feedback",
+        prices: "💰 Priser",
+        feedbackTitle: "🗣️ Feedback",
+        sendFeedback: "Send feedback"
+      }
+    };
+
     const firebaseConfig = {
       apiKey: "AIzaSyBfczm5Pj1mMgD7-B7-WdOocclxtNKniN0",
       authDomain: "cleanlaptopkobenhavn.firebaseapp.com",
@@ -84,6 +163,10 @@
 
     const form = document.getElementById("feedback-form");
     const reviewsDiv = document.getElementById("reviews");
+    const adminLoginDiv = document.getElementById("admin-login");
+    let isAdmin = false;
+
+    const adminPassword = "admin123"; // Use a more secure method in production
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -109,7 +192,44 @@
         const div = document.createElement("div");
         div.classList.add("review");
         div.innerHTML = `<strong>${data.name}</strong><p>${data.message}</p><small>${data.created.toDate().toLocaleString()}</small>`;
+        
+        // Add delete button for admins
+        if (isAdmin) {
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "Delete";
+          deleteButton.onclick = () => deleteFeedback(doc.id);
+          div.appendChild(deleteButton);
+        }
+
         reviewsDiv.appendChild(div);
+      });
+    }
+
+    async function deleteFeedback(feedbackId) {
+      if (confirm("Are you sure you want to delete this feedback?")) {
+        await db.collection("feedbacks").doc(feedbackId).delete();
+        loadFeedbacks();
+      }
+    }
+
+    function loginAsAdmin() {
+      const password = document.getElementById("admin-password").value;
+      if (password === adminPassword) {
+        isAdmin = true;
+        adminLoginDiv.style.display = "none"; // Hide admin login
+        loadFeedbacks();
+      } else {
+        alert("Incorrect password!");
+      }
+    }
+
+    let currentLang = 'da';
+
+    function toggleLang() {
+      currentLang = currentLang === 'da' ? 'en' : 'da';
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = translations[currentLang][key];
       });
     }
 
