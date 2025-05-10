@@ -1,118 +1,119 @@
-﻿<!DOCTYPE html>
-<html lang="uk">
+<!DOCTYPE html>
+<html lang="da">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Відгуки</title>
-    <style>
-        body {
-            background: #111;
-            color: #eee;
-            font-family: sans-serif;
-            padding: 2rem;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            max-width: 400px;
-            margin-bottom: 2rem;
-        }
-
-        input, textarea, button {
-            margin-top: 1rem;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: none;
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        button {
-            background: #3b82f6;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-            button:hover {
-                background: #2563eb;
-            }
-
-        .feedback {
-            background: #222;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-        }
-    </style>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f0f0f;
+      color: #fff;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    form {
+      max-width: 500px;
+      margin: 0 auto 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    input, textarea, button {
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+    input, textarea {
+      background-color: #222;
+      color: #fff;
+    }
+    button {
+      background-color: #00bfff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #009acd;
+    }
+    .reviews {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .review {
+      background: #1a1a1a;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+    }
+    .review small {
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
-    <h1>Залишити відгук</h1>
-    <form id="feedbackForm">
-        <input type="text" id="name" placeholder="Ваше ім'я (необов'язково)" />
-        <textarea id="message" placeholder="Ваш відгук" required></textarea>
-        <button type="submit">Надіслати</button>
-    </form>
+  <h1>🗣️ Feedback</h1>
+  <form id="feedback-form">
+    <input type="text" id="name" placeholder="Dit navn" required />
+    <textarea id="message" rows="4" placeholder="Din besked..." required></textarea>
+    <button type="submit">Send feedback</button>
+  </form>
 
-    <h2>Всі відгуки:</h2>
-    <div id="feedbackList"></div>
+  <div class="reviews" id="reviews"></div>
 
-    <script>
-    // 🔧 Замініть ці налаштування на свої з Firebase:
-        const firebaseConfig = {
-            apiKey: "AIzaSyCf_MMGGvsg0hAxXzOolI0a_1y1xK-uyiU",
-            authDomain: "cleanlaptopkobenhavn.firebaseapp.com",
-            projectId: "cleanlaptopkobenhavn",
-            storageBucket: "cleanlaptopkobenhavn.firebasestorage.app",
-            messagingSenderId: "75968364706",
-            appId: "1:75968364706:web:abe6a84ed1dee4a1d6d7fb",
-            measurementId: "G-5RT2P21BJ1"
-        };
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfczm5Pj1mMgD7-B7-WdOocclxtNKniN0",
+      authDomain: "cleanlaptopkobenhavn.firebaseapp.com",
+      projectId: "cleanlaptopkobenhavn",
+      storageBucket: "cleanlaptopkobenhavn.appspot.com",
+      messagingSenderId: "197762556011",
+      appId: "1:197762556011:web:6d91a23502f8085be7a3e3"
+    };
 
-    // Ініціалізація Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const form = document.getElementById('feedbackForm');
-    const nameInput = document.getElementById('name');
-    const messageInput = document.getElementById('message');
-    const feedbackList = document.getElementById('feedbackList');
+    const form = document.getElementById("feedback-form");
+    const reviewsDiv = document.getElementById("reviews");
 
-    // Додавання нового відгуку
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = nameInput.value.trim() || "Анонім";
-      const message = messageInput.value.trim();
-      if (!message) return;
+      const name = document.getElementById("name").value.trim();
+      const message = document.getElementById("message").value.trim();
 
-      await db.collection('feedbacks').add({
-        name,
-        message,
-        timestamp: new Date()
-      });
-
-      nameInput.value = '';
-      messageInput.value = '';
+      if (name && message) {
+        await db.collection("feedbacks").add({
+          name,
+          message,
+          created: new Date()
+        });
+        form.reset();
+        loadFeedbacks();
+      }
     });
 
-    // Вивід усіх відгуків
-    db.collection('feedbacks').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-      feedbackList.innerHTML = '';
+    async function loadFeedbacks() {
+      reviewsDiv.innerHTML = "";
+      const snapshot = await db.collection("feedbacks").orderBy("created", "desc").get();
       snapshot.forEach(doc => {
         const data = doc.data();
-        const el = document.createElement('div');
-        el.className = 'feedback';
-        el.innerHTML = `<strong>${data.name}</strong><br>${data.message}`;
-        feedbackList.appendChild(el);
+        const div = document.createElement("div");
+        div.classList.add("review");
+        div.innerHTML = `<strong>${data.name}</strong><p>${data.message}</p><small>${data.created.toDate().toLocaleString()}</small>`;
+        reviewsDiv.appendChild(div);
       });
-    });
-    </script>
+    }
+
+    loadFeedbacks();
+  </script>
 </body>
 </html>
