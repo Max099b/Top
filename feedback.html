@@ -8,71 +8,21 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
     body {
+      margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: #0f0f0f;
       color: #fff;
-      padding: 2rem;
-      margin: 0;
+      overflow-x: hidden;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    form {
-      max-width: 500px;
-      margin: 0 auto 3rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    input, textarea, button {
-      padding: 0.8rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-    }
-    input, textarea {
-      background-color: #222;
-      color: #fff;
-    }
-    button {
-      background-color: #00bfff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background-color: #009acd;
-    }
-    .reviews {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .review {
-      background: #1a1a1a;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-    }
-    .review small {
-      color: #aaa;
-    }
-    .admin-login {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-    .admin-login input {
-      padding: 0.8rem;
-      border-radius: 8px;
-      border: none;
-      margin-right: 1rem;
-      font-size: 1rem;
-    }
-    .admin-login button {
-      background-color: #ff6347;
-      color: #fff;
+    .background {
+      position: fixed;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.3);
     }
     .top-bar {
       display: flex;
@@ -97,58 +47,113 @@
       cursor: pointer;
       border-radius: 8px;
     }
+    h1 {
+      text-align: center;
+      margin-top: 3rem;
+      animation: fadeIn 1s ease-in-out;
+    }
+    form {
+      max-width: 500px;
+      margin: 2rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      animation: fadeInUp 1s ease-in-out;
+    }
+    input, textarea, button {
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+    input, textarea {
+      background-color: #222;
+      color: #fff;
+    }
+    button {
+      background-color: #00bfff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #009acd;
+    }
+    .reviews {
+      max-width: 600px;
+      margin: 0 auto 3rem;
+    }
+    .review {
+      background: #1a1a1a;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      position: relative;
+      animation: fadeInUp 0.6s ease-in-out;
+    }
+    .review small {
+      color: #aaa;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4d4d;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: none;
+    }
+    .admin .delete-btn {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .top-bar {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <img src="images/background.jpg" alt="Background" class="background" />
+  <img src="images/background.jpg" alt="Baggrund" class="background" />
 
-  <!-- Top Navigation Bar -->
   <div class="top-bar">
     <nav>
-      <a href="index.html" data-i18n="home">🏠 Home</a>
-      <a href="bestilling.html" data-i18n="book">📅 Book</a>
-      <a href="feedback.html" data-i18n="feedback">💬 Feedback</a>
-      <a href="priser.html" data-i18n="prices">💰 Prices</a>
+      <a href="index.html" data-i18n="home">🏠 Hjem</a>
+      <a href="bestilling.html" data-i18n="book">📅 Bestil</a>
+      <a href="priser.html" data-i18n="prices">💰 Priser</a>
     </nav>
-    <button class="lang-switch" onclick="toggleLang()">🇩🇰 / 🇬🇧</button>
-  </div>
-
-  <!-- Admin Login Form -->
-  <div class="admin-login" id="admin-login">
-    <input type="password" id="admin-password" placeholder="Admin Password" />
-    <button onclick="loginAsAdmin()">Login as Admin</button>
+    <div>
+      <button class="lang-switch" onclick="toggleLang()">🇩🇰 / 🇬🇧</button>
+      <button onclick="adminLogin()">🔐 Admin</button>
+    </div>
   </div>
 
   <h1 data-i18n="feedbackTitle">🗣️ Feedback</h1>
-
   <form id="feedback-form">
     <input type="text" id="name" placeholder="Dit navn" required />
     <textarea id="message" rows="4" placeholder="Din besked..." required></textarea>
-    <button type="submit" data-i18n="sendFeedback">Send feedback</button>
+    <button type="submit" data-i18n="send">Send feedback</button>
   </form>
 
   <div class="reviews" id="reviews"></div>
 
   <script>
-    const translations = {
-      en: {
-        home: "🏠 Home",
-        book: "📅 Book",
-        feedback: "💬 Feedback",
-        prices: "💰 Prices",
-        feedbackTitle: "🗣️ Feedback",
-        sendFeedback: "Send feedback"
-      },
-      da: {
-        home: "🏠 Hjem",
-        book: "📅 Bestil",
-        feedback: "💬 Feedback",
-        prices: "💰 Priser",
-        feedbackTitle: "🗣️ Feedback",
-        sendFeedback: "Send feedback"
-      }
-    };
-
     const firebaseConfig = {
       apiKey: "AIzaSyBfczm5Pj1mMgD7-B7-WdOocclxtNKniN0",
       authDomain: "cleanlaptopkobenhavn.firebaseapp.com",
@@ -157,22 +162,18 @@
       messagingSenderId: "197762556011",
       appId: "1:197762556011:web:6d91a23502f8085be7a3e3"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     const form = document.getElementById("feedback-form");
     const reviewsDiv = document.getElementById("reviews");
-    const adminLoginDiv = document.getElementById("admin-login");
-    let isAdmin = false;
 
-    const adminPassword = "admin123"; // Use a more secure method in production
+    let isAdmin = false;
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const message = document.getElementById("message").value.trim();
-
       if (name && message) {
         await db.collection("feedbacks").add({
           name,
@@ -190,41 +191,54 @@
       snapshot.forEach(doc => {
         const data = doc.data();
         const div = document.createElement("div");
-        div.classList.add("review");
-        div.innerHTML = `<strong>${data.name}</strong><p>${data.message}</p><small>${data.created.toDate().toLocaleString()}</small>`;
-        
-        // Add delete button for admins
-        if (isAdmin) {
-          const deleteButton = document.createElement("button");
-          deleteButton.textContent = "Delete";
-          deleteButton.onclick = () => deleteFeedback(doc.id);
-          div.appendChild(deleteButton);
-        }
-
+        div.className = "review";
+        if (isAdmin) div.classList.add("admin");
+        div.innerHTML = `
+          <strong>${data.name}</strong>
+          <p>${data.message}</p>
+          <small>${data.created.toDate().toLocaleString()}</small>
+          ${isAdmin ? `<button class="delete-btn" onclick="deleteFeedback('${doc.id}')">🗑️</button>` : ""}
+        `;
         reviewsDiv.appendChild(div);
       });
     }
 
-    async function deleteFeedback(feedbackId) {
-      if (confirm("Are you sure you want to delete this feedback?")) {
-        await db.collection("feedbacks").doc(feedbackId).delete();
-        loadFeedbacks();
+    function deleteFeedback(id) {
+      if (confirm("Er du sikker på, at du vil slette denne feedback?")) {
+        db.collection("feedbacks").doc(id).delete().then(loadFeedbacks);
       }
     }
 
-    function loginAsAdmin() {
-      const password = document.getElementById("admin-password").value;
-      if (password === adminPassword) {
+    function adminLogin() {
+      const pass = prompt("Indtast adgangskode:");
+      if (pass === "maks2024") {
         isAdmin = true;
-        adminLoginDiv.style.display = "none"; // Hide admin login
         loadFeedbacks();
+        alert("Admin login successful");
       } else {
-        alert("Incorrect password!");
+        alert("Forkert adgangskode");
       }
     }
+
+    // Translate
+    const translations = {
+      en: {
+        home: "🏠 Home",
+        book: "📅 Book",
+        prices: "💰 Prices",
+        feedbackTitle: "🗣️ Feedback",
+        send: "Send Feedback"
+      },
+      da: {
+        home: "🏠 Hjem",
+        book: "📅 Bestil",
+        prices: "💰 Priser",
+        feedbackTitle: "🗣️ Feedback",
+        send: "Send feedback"
+      }
+    };
 
     let currentLang = 'da';
-
     function toggleLang() {
       currentLang = currentLang === 'da' ? 'en' : 'da';
       document.querySelectorAll('[data-i18n]').forEach(el => {
